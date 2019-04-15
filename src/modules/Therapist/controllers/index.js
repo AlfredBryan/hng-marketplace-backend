@@ -1,8 +1,9 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { sendJSONResponse } = require("../../../helpers");
+const { sendJSONResponse } = require('../../../helpers');
 
-const Therapist = mongoose.model("Therapist");
+const Therapist = mongoose.model('Therapist');
+const User = mongoose.model('User');
 
 module.exports.allTherapists = async (req, res) => {
   const except = {
@@ -14,9 +15,9 @@ module.exports.allTherapists = async (req, res) => {
   const therapist = await Therapist.find({}, except);
 
   if (therapist) {
-    sendJSONResponse(res, 200, therapist, req.method, "All therapists");
+    sendJSONResponse(res, 200, therapist, req.method, 'All therapists');
   } else {
-    sendJSONResponse(res, 404, null, req.method, "No therapist  available");
+    sendJSONResponse(res, 404, null, req.method, 'No therapist  available');
   }
 };
 
@@ -24,13 +25,13 @@ module.exports.viewTherapist = async (req, res) => {
   const { id } = req.params;
 
   if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-    return sendJSONResponse(res, 400, null, req.method, "Invalid Therapist ID");
+    return sendJSONResponse(res, 400, null, req.method, 'Invalid Therapist ID');
   }
 
   const therapist = await Therapist.findOne({ _id: id });
 
   if (therapist === null) {
-    return sendJSONResponse(res, 404, null, req.method, "Therapist Not Found");
+    return sendJSONResponse(res, 404, null, req.method, 'Therapist Not Found');
   }
 
   sendJSONResponse(
@@ -48,11 +49,10 @@ module.exports.viewTherapist = async (req, res) => {
       status: therapist.status,
     },
     req.method,
-    "View Therapist"
+    'View Therapist',
   );
 };
-// TODO: test if .find.populate works
-// else use aggregate
+// TODO: find working solution for searching
 module.exports.search = async (req, res) => {
   const searchKey = {};
 
@@ -62,15 +62,46 @@ module.exports.search = async (req, res) => {
       searchKey[i] = req.body[i];
     }
   }
-
-  const findTherapist = Therapist.findOne({ searchKey })
-    .populate({
-      path: 'User',
-      select: 'first_name last_name',
-    })
-    .exec();
+  //TODO: find solution to this
+  const findTherapist = await Therapist.aggregate([
+    { $match: searchKey  },
+    { '$unwind': '$user' },
+    {
+      $lookup: {
+        from: 'User',
+        localField: 'user',
+        foreignField: '_id',
+        as: 'user',
+      },
+    },
+  ]).exec();
+  console.log(findTherapist);
 
   return sendJSONResponse(res, 200, { therapist: findTherapist }, req.method, 'Therapist fetched');
+};
+
+module.exports.create = async (req, res) => {
+  const { userId } = req.params;
+  const findUser = await User.findOne({ _id: userId });
+
+  if (!findUser) {
+    return sendJSONResponse(res, 200, {}, req.method, 'User not found');
+  }
+
+  if (findUser.designation.toLowerCase() !== 'therapist') {
+    return sendJSONResponse(res, 200, {}, req.method, 'User not a Therapist');
+  }
+
+  const findTherapist = await Therapist.findOne({ user: userId });
+  if (findTherapist) {
+    return sendJSONResponse(res, 200, {}, req.method, 'Account already approved');
+  }
+
+  const therapist = new Therapist();
+  therapist.user = findUser._id;
+  await therapist.save();
+
+  return sendJSONResponse(res, 201, {}, req.method, 'Therapist account approved');
 };
 
 module.exports.marketplace = async (req, res) => {
@@ -105,4 +136,4 @@ module.exports.changeStatus = async (req, res) => {
   user.save();
 
   return sendJSONResponse(res, 200, user , req.method, "Status has been changed");
-}
+};
