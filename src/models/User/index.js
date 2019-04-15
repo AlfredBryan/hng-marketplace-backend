@@ -34,7 +34,13 @@ const userSchema = new Schema({
   }, 
   age: {
     type: String
-  }
+  },
+ total_fee_charged: {
+  type: String
+},
+total_amount_paid: {
+  type: String
+}
 },
   { timestamps: true }
 );
