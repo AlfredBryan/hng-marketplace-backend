@@ -10,5 +10,6 @@ router.put('/edit/:Id', checkTokenExists, verifyToken, catchErrors(ctrlTherapist
 router.get('/profile/:id', catchErrors(ctrlTherapist.viewTherapist));
 router.get('/all', checkTokenExists, verifyToken, catchErrors(ctrlTherapist.allTherapists));
 router.post('/search', /*checkTokenExists, verifyToken,*/ catchErrors(ctrlTherapist.search));
+router.get('/marketplace', catchErrors(ctrlTherapist.marketplace));
 
 module.exports = router;

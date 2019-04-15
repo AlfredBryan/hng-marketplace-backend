@@ -30,25 +30,20 @@ const userSchema = new Schema(
     age: {
       type: String,
     },
-  },
-<<<<<<< HEAD
-  rating: {
-    type: Number
-  }, 
-  age: {
-    type: String
-  },
- total_fee_charged: {
-  type: String
-},
-total_amount_paid: {
-  type: String
-}
+    rating: {
+      type: Number
+    }, 
+    age: {
+      type: String
+    },
+    total_fee_charged: {
+      type: String
+    },
+    total_amount_paid: {
+      type: String
+    }
 },
   { timestamps: true }
-=======
-  { timestamps: true },
->>>>>>> 1b0b5ad60724811b6046a4d2f0ef3332060d2546
 );
 
 

@@ -130,3 +130,12 @@ module.exports.search = async (req, res) => {
   return sendJSONResponse(res, 200, { therapist: findTherapist }, req.method, 'Therapist fetched');
 };
 
+module.exports.marketplace = async (req, res) => {
+  const marketplace = await Therapist.find({ available: true });
+
+  if(!marketplace){
+    return sendJSONResponse(res, 404, null, req.method, "No therapist available");
+  }
+
+  return sendJSONResponse(res, 200, marketplace , req.method, "All therapist available");
+}
