@@ -108,3 +108,25 @@ module.exports.viewTherapist = async (req, res) => {
     "View Therapist"
   );
 };
+// TODO: test if .find.populate works
+// else use aggregate
+module.exports.search = async (req, res) => {
+  const searchKey = {};
+
+  // eslint-disable-next-line no-restricted-syntax
+  for (const i of Object.keys(req.body)) {
+    if (i !== undefined && i !== null) {
+      searchKey[i] = req.body[i];
+    }
+  }
+
+  const findTherapist = Therapist.findOne({ searchKey })
+    .populate({
+      path: 'User',
+      select: 'first_name last_name',
+    })
+    .exec();
+
+  return sendJSONResponse(res, 200, { therapist: findTherapist }, req.method, 'Therapist fetched');
+};
+
