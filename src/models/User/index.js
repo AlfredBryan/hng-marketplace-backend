@@ -9,7 +9,7 @@ const userSchema = new Schema(
     email: { type: String, required: true },
     designation: {
       type: String,
-      default: 'normal',
+      default: 'normal', //therapist, admin, normal
     },
     image: {
       type: String,

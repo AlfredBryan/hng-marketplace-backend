@@ -139,3 +139,27 @@ module.exports.marketplace = async (req, res) => {
 
   return sendJSONResponse(res, 200, marketplace , req.method, "All therapist available");
 }
+
+module.exports.changeStatus = async (req, res) => {
+  const { userId } = req.params;
+
+  if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
+    return sendJSONResponse(res, 400, null, req.method, "Invalid Therapist ID");
+  }
+
+  const user = await Therapist.findOne({ user: userId });
+
+  if (!user || user.designation != 'therapist') {
+    return sendJSONResponse(res, 404, null, req.method, "Therapist does not exist");
+  }
+
+  if (user.available == true) {
+    user.available = false;
+  }else{
+    user.available = true;
+  }
+
+  user.save();
+
+  return sendJSONResponse(res, 200, user , req.method, "Status has been changed");
+}
