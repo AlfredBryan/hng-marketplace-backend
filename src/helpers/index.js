@@ -8,7 +8,7 @@ module.exports = {
       status,
       method,
       message,
-      data,
+      data
     });
   },
   catchErrors(fn) {
@@ -42,8 +42,8 @@ module.exports = {
       return res.status(400).json({
         status: 400,
         method: req.method,
-        message: 'Invalid token',
-        data: null,
+        message: "Invalid token",
+        data: null
       });
     }
   },
@@ -57,8 +57,8 @@ module.exports = {
       return res.status(400).json({
         status: 400,
         method: req.method,
-        message: 'No token available',
-        data: null,
+        message: "No token available",
+        data: null
       });
     }
 
@@ -83,8 +83,8 @@ module.exports = {
     return res.status(401).json({
       status: 401,
       method: req.method,
-      message: 'Only Admin Access',
-      data: null,
+      message: "Only Admin Access",
+      data: null
     });
   },
 };

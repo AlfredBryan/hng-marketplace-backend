@@ -7,7 +7,8 @@ const { catchErrors } = require('../../../helpers');
 
 const router = express.Router();
 
-router.post('/register', expressValidator(validateUser.register), catchErrors(ctrlUser.register))
+router.post('/register', expressValidator(validateUser.register), catchErrors(ctrlUser.register));
+router.post('/login', expressValidator(validateUser.login), catchErrors(ctrlUser.login));
 
 
 module.exports = router;
