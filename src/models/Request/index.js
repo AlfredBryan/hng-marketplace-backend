@@ -11,7 +11,13 @@ const requestSchema = new Schema({
     ref: 'User',
  },
  status: {
-     type: String
+     type: String //pending, accepted, started, rejected, finished
+ },
+ start: {
+    type: Date
+ },
+ end: {
+    type: Date
  }
 }, { timestamps: true });
 

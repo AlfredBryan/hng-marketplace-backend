@@ -44,14 +44,14 @@ module.exports.makePayment = async (req, res) => {
 };
 
 /**
-   * Make Payment
+   * Make Request For a Professional
    * @param {object} req - Request object
    * @param {object} res - Response object
    * @return {json} res.json
    */
   module.exports.makeRequest = async (req, res) => {
     const { userId} = req.params;
-    const { therapistId } = req.body;
+    const { therapistId, start, end } = req.body;
 
     if (!userId.match(/^[0-9a-fA-F]{24}$/) && !therapistId.match(/^[0-9a-fA-F]{24}$/)) {
         return sendJSONResponse(res, 400, null, req.method, 'Invalid User ID');
@@ -67,8 +67,8 @@ module.exports.makePayment = async (req, res) => {
     const clientStatus = await Request.find({ client:userId, therapist: therapistId});
     for (let i = 0; i < clientStatus.length; i++) {
         const status = clientStatus[i].status;
-        if (status != 'completed') {
-            return sendJSONResponse(res, 404, null, req.method, 'There is an existing request');
+        if (status != 'finished') {
+            return sendJSONResponse(res, 404, null, req.method, 'There is an existing session');
         }
         
     }
@@ -77,7 +77,42 @@ module.exports.makePayment = async (req, res) => {
     newRequest.client = userId;
     newRequest.therapist = therapistId;
     newRequest.status = 'pending';
+    newRequest.start = start;
+    newRequest.end = end;
 
     await newRequest.save();
     sendJSONResponse(res, 201, { newRequest }, req.method, 'Created New Therapy Request!');
+};
+
+/**
+   * Accept Request
+   * @param {object} req - Request object
+   * @param {object} res - Response object
+   * @return {json} res.json
+   */
+  module.exports.acceptRequest = async (req, res) => {
+    const { userId} = req.body;
+    const { therapistId } = req.params;
+
+    if (!userId.match(/^[0-9a-fA-F]{24}$/) && !therapistId.match(/^[0-9a-fA-F]{24}$/)) {
+        return sendJSONResponse(res, 400, null, req.method, 'Invalid User ID');
+      }
+
+    const client = await User.findById(userId);
+    const therapist = await User.findById(therapist);
+
+    if(!client && !therapist){
+        return sendJSONResponse(res, 404, null, req.method, 'User does not exist');
+    }
+
+    const request = await Request.findOne({ client:userId, therapist: therapistId, status: 'pending'});
+    
+    if(request){
+        request.status = 'accepted';
+
+        await request.save();
+        return sendJSONResponse(res, 200, { request }, req.method, 'Request accepted');
+    }
+
+    sendJSONResponse(res, 400, { newRequest }, req.method, 'No such request');
 };
