@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const bcrypt = require('bcryptjs');
+const bcrypt = require("bcryptjs");
 const { sendJSONResponse } = require("../../../helpers");
 
 const Therapist = mongoose.model("Therapist");
@@ -11,7 +11,7 @@ module.exports.updateTherapist = async (req, res) => {
     address,
     years_of_experience,
     last_working_experience,
-    password,
+    password
   } = req.body;
   const { Id } = req.params;
 
@@ -66,7 +66,7 @@ module.exports.allTherapists = async (req, res) => {
     _v: false,
     password: false,
     salt: false,
-    hash: false,
+    hash: false
   };
   const therapist = await Therapist.find({}, except);
 
@@ -102,7 +102,7 @@ module.exports.viewTherapist = async (req, res) => {
       last_working_experience: therapist.last_working_experience,
       time_available: therapist.time_available,
       fee_per_hour: therapist.fee_per_hour,
-      status: therapist.status,
+      status: therapist.status
     },
     req.method,
     "View Therapist"
@@ -122,20 +122,64 @@ module.exports.search = async (req, res) => {
 
   const findTherapist = Therapist.findOne({ searchKey })
     .populate({
-      path: 'User',
-      select: 'first_name last_name',
+      path: "User",
+      select: "first_name last_name"
     })
     .exec();
 
-  return sendJSONResponse(res, 200, { therapist: findTherapist }, req.method, 'Therapist fetched');
+  return sendJSONResponse(
+    res,
+    200,
+    { therapist: findTherapist },
+    req.method,
+    "Therapist fetched"
+  );
 };
 
 module.exports.marketplace = async (req, res) => {
   const marketplace = await Therapist.find({ available: true });
 
-  if(!marketplace){
-    return sendJSONResponse(res, 404, null, req.method, "No therapist available");
+  if (!marketplace) {
+    return sendJSONResponse(
+      res,
+      404,
+      null,
+      req.method,
+      "No therapist available"
+    );
   }
 
-  return sendJSONResponse(res, 200, marketplace , req.method, "All therapist available");
-}
+  return sendJSONResponse(
+    res,
+    200,
+    marketplace,
+    req.method,
+    "All therapist available"
+  );
+};
+
+module.exports.verifyTherapist = async (req, res) => {
+  const {
+    email,
+    phone,
+    name,
+    country,
+    time_available,
+    address,
+    years_of_experience,
+    last_working_experience,
+  } = req.body;
+
+  const therapist = new Therapist();
+  therapist.name = name;
+  therapist.phone = phone;
+  therapist.country = country;
+  therapist.address = address;
+  therapist.years_of_experience = years_of_experience;
+  therapist.time_available = time_available;
+  therapist.last_working_experience = last_working_experience;
+
+  await therapist.save();
+
+  sendJSONResponse(res, 200, { therapist }, req.method, 'verification sent!');
+};

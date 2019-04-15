@@ -9,7 +9,8 @@ const router = express.Router();
 router.put('/edit/:Id', checkTokenExists, verifyToken, catchErrors(ctrlTherapist.updateTherapist));
 router.get('/profile/:id', catchErrors(ctrlTherapist.viewTherapist));
 router.get('/all', checkTokenExists, verifyToken, catchErrors(ctrlTherapist.allTherapists));
-router.post('/search', /*checkTokenExists, verifyToken,*/ catchErrors(ctrlTherapist.search));
+router.post('/search', catchErrors(ctrlTherapist.search));
 router.get('/marketplace', catchErrors(ctrlTherapist.marketplace));
+router.post('/user/therapist/verify-me', checkTokenExists, verifyToken, catchErrors(ctrlTherapist.verifyTherapist));
 
 module.exports = router;
