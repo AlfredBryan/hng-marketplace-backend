@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs');
 const { sendJSONResponse } = require('../../../helpers');
 
 const User = mongoose.model('User');
+const Therapy = mongoose.model('Therapist');
+const Request = mongoose.model('Request');
 
 module.exports.register = async (req, res) => {
   const { first_name, last_name, email, designation, password } = req.body;
@@ -67,4 +69,61 @@ module.exports.login = async (req, res) => {
     'Login Successful!',
   );
 };
+
+module.exports.viewProfile = async (req, res) => {
+  const { userId } = req.params;
+
+  if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
+    return sendJSONResponse(res, 400, null, req.method, "Invalid User ID");
+  }
+
+  const user = await User.findById(userId);
+
+  if (user) {
+    return sendJSONResponse(res, 200, user, req.method, "View profile");
+  }
+  
+  return sendJSONResponse(res, 400, null, req.method, "User does not exist");
+}
+
+/**
+   * Leave marketplace
+   * @param {object} req - Request object
+   * @param {object} res - Response object
+   * @return {json} res.json
+   */
+  module.exports.leaveMarket = async (req, res) => {
+    const { userId } = req.params;
+  
+    if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
+      return sendJSONResponse(res, 400, null, req.method, 'Invalid User ID');
+    }
+  
+    const user = await User.findById(userId);
+  
+    if (user === null) {
+      return sendJSONResponse(res, 404, null, req.method, 'User Not Found');
+    }
+  
+    // delete user
+    const findRequest = await Request.find({therapist: userId});
+    for (let i = 0; i < findRequest.length; i++) {
+      const status = findRequest[i].status;
+
+      if (status != 'finished') {
+        console.log(findRequest[i]);
+        await findRequest.save();
+      }
+    }
+    await User.findOneAndRemove({ _id: userId });
+    await Therapy.findOneAndRemove({ user: userId });
+  
+    sendJSONResponse(
+      res,
+      200,
+      null,
+      req.method,
+      'User Deleted Successfully',
+    );
+  };
 

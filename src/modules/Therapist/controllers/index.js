@@ -4,63 +4,6 @@ const { sendJSONResponse } = require("../../../helpers");
 
 const Therapist = mongoose.model("Therapist");
 
-module.exports.updateTherapist = async (req, res) => {
-  const {
-    phone,
-    country,
-    address,
-    years_of_experience,
-    last_working_experience,
-    password,
-  } = req.body;
-  const { Id } = req.params;
-
-  if (!Id.match(/^[0-9a-fA-F]{24}$/)) {
-    return sendJSONResponse(res, 400, null, req.method, "Invalid Therapist ID");
-  }
-
-  const therapist = await Therapist.findById(Id);
-
-  if (therapist) {
-    if (phone) {
-      therapist.phone = phone;
-    }
-    if (country) {
-      therapist.country = country;
-    }
-    if (address) {
-      therapist.address = address;
-    }
-    if (years_of_experience) {
-      therapist.years_of_experience = years_of_experience;
-    }
-    if (last_working_experience) {
-      therapist.last_working_experience = last_working_experience;
-    }
-    if (password) {
-      therapist.password = bcrypt.hashSync(password, 10);
-    }
-
-    therapist.save();
-    return sendJSONResponse(
-      res,
-      200,
-      {
-        id: therapist._id,
-        phone: therapist.phone,
-        country: therapist.country,
-        address: therapist.address,
-        years_of_experience: therapist.years_of_experience,
-        last_working_experience: therapist.last_working_experience
-      },
-      req.method,
-      "Therapist Updated Succesfully!"
-    );
-  } else {
-    return sendJSONResponse(res, 409, null, req.method, "Therapist not Found!");
-  }
-};
-
 module.exports.allTherapists = async (req, res) => {
   const except = {
     _v: false,

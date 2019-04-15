@@ -11,7 +11,7 @@ const requestSchema = new Schema({
     ref: 'User',
  },
  status: {
-     type: String //pending, accepted, started, rejected, finished
+     type: String //pending, accepted, started, rejected, finished, cancelled
  },
  start: {
     type: Date
