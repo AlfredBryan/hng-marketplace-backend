@@ -28,8 +28,8 @@ const therapistSchema = new mongoose.Schema(
     fee_per_hour: {
       type: String
     },
-    status: {
-      type: String
+    available: {
+      type: Boolean
     }
   },
   { timestamps: true }

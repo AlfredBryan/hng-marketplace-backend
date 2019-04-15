@@ -1,3 +1,6 @@
+const jwt = require('jsonwebtoken');
+const { jwtsecret } = require('../config');
+
 module.exports = {
   sendJSONResponse(res, status, data, method, message) {
     res.status(status);
@@ -30,8 +33,8 @@ module.exports = {
       return res.status(401).json({
         status: 401,
         method: req.method,
-        message: "Unauthorized User",
-        data: null
+        message: 'Unauthorized User',
+        data: null,
       });
 
       //

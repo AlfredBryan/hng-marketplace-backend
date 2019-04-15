@@ -6,6 +6,10 @@ const paymentSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User',
  },
+ request: {
+   type: Schema.Types.ObjectId,
+   ref: 'Request'
+ },
  therapist: {
     type: Schema.Types.ObjectId,
     ref: 'User',

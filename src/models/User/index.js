@@ -9,7 +9,7 @@ const userSchema = new Schema(
     email: { type: String, required: true },
     designation: {
       type: String,
-      default: 'normal',
+      default: 'normal', //therapist, admin, normal
     },
     image: {
       type: String,
@@ -30,8 +30,20 @@ const userSchema = new Schema(
     age: {
       type: String,
     },
-  },
-  { timestamps: true },
+    rating: {
+      type: Number
+    }, 
+    age: {
+      type: String
+    },
+    total_fee_charged: {
+      type: String
+    },
+    total_amount_paid: {
+      type: String
+    }
+},
+  { timestamps: true }
 );
 
 
