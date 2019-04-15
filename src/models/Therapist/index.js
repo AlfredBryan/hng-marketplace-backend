@@ -5,7 +5,7 @@ const therapistSchema = new mongoose.Schema(
   {
     user: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "User"
     },
     phone: {
       type: String
@@ -28,12 +28,15 @@ const therapistSchema = new mongoose.Schema(
     fee_per_hour: {
       type: String
     },
+    fileUploads: {
+      type: String
+    },
     available: {
       type: Boolean
     },
     bank_account: {
       type: String
-    }
+    },
   },
   { timestamps: true }
 );

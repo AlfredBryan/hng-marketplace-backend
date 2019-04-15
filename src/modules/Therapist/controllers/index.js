@@ -1,3 +1,4 @@
+
 const mongoose = require('mongoose');
 const { sendJSONResponse } = require('../../../helpers');
 
@@ -8,7 +9,7 @@ module.exports.allTherapists = async (req, res) => {
     _v: false,
     password: false,
     salt: false,
-    hash: false,
+    hash: false
   };
   const therapist = await Therapist.find({}, except);
 
@@ -29,6 +30,13 @@ module.exports.search = async (req, res) => {
       searchKey[i] = req.body[i];
     }
   }
+
+  // const findTherapist = Therapist.findOne({ searchKey })
+  //   .populate({
+  //     path: "User",
+  //     select: "first_name last_name"
+  //   })
+  //   .exec();
   //TODO: find solution to this
   const findTherapist = await Therapist.aggregate([
     { $match: searchKey  },
@@ -44,16 +52,61 @@ module.exports.search = async (req, res) => {
   ]).exec();
   console.log(findTherapist);
 
-  return sendJSONResponse(res, 200, { therapist: findTherapist }, req.method, 'Therapist fetched');
+  return sendJSONResponse(
+    res,
+    200,
+    { therapist: findTherapist },
+    req.method,
+    "Therapist fetched"
+  );
 };
 
 module.exports.marketplace = async (req, res) => {
   const marketplace = await Therapist.find({ available: true });
 
-  if(!marketplace){
-    return sendJSONResponse(res, 404, null, req.method, "No therapist available");
+  if (!marketplace) {
+    return sendJSONResponse(
+      res,
+      404,
+      null,
+      req.method,
+      "No therapist available"
+    );
   }
 
+  return sendJSONResponse(
+    res,
+    200,
+    marketplace,
+    req.method,
+    "All therapist available"
+  );
+};
+
+module.exports.verifyTherapist = async (req, res) => {
+  const {
+    email,
+    phone,
+    name,
+    country,
+    time_available,
+    address,
+    years_of_experience,
+    last_working_experience,
+  } = req.body;
+
+  const therapist = new Therapist();
+  therapist.name = name;
+  therapist.phone = phone;
+  therapist.country = country;
+  therapist.address = address;
+  therapist.years_of_experience = years_of_experience;
+  therapist.time_available = time_available;
+  therapist.last_working_experience = last_working_experience;
+
+  await therapist.save();
+
+  sendJSONResponse(res, 200, { therapist }, req.method, 'verification sent!');
   return sendJSONResponse(res, 200, marketplace , req.method, "All therapist available");
 }
 
@@ -80,3 +133,37 @@ module.exports.changeStatus = async (req, res) => {
 
   return sendJSONResponse(res, 200, user , req.method, "Status has been changed");
 };
+
+module.exports.searchTherapist = async (req, res) => {
+    let noMatch = null;
+
+    if (req.query.search) {
+      const regex = new RegExp(escapeRegex(req.query.search), "gi");
+      Therapist.find(
+        {
+          $or: [{ fee_per_hour: regex }, { name: regex }, { rating: regex }, { country: regex }, { years_of_experience: regex }]
+        },
+        (err, therapist) => {
+          if (err) {
+            return sendJSONResponse(res, 404, null, req.method, "Therapist not found");
+        }
+          if (therapist.length < 1) {
+            noMatch = "No therapist match that query, please try again";
+          }
+          return sendJSONResponse(res, 200, { therapist, noMatch }, req.method, "Therapist found");
+        }
+      ).limit(10);
+    } else {
+    Therapist.find({}, (err, therapist) => {
+        if (err) {
+            return sendJSONResponse(res, 404, null, req.method, "Therapist not found");
+        }
+        return sendJSONResponse(res, 200, { therapist }, req.method, "Therapists");
+      });
+    }
+
+}
+
+function escapeRegex(text) {
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+  }

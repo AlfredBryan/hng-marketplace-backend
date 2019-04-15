@@ -2,6 +2,7 @@
 require('dotenv').config({ path: '.env' });
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const app = express();
 const chalk = require('./config/chalk');
@@ -18,6 +19,9 @@ if (config.env !== 'test') {
 }
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: '52428800' }));
+app.use(cors());
+app.options('*', cors());
+
 const apiRoutes = require('./router');
 
 app.use('/api/v1', apiRoutes);
