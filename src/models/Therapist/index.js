@@ -34,6 +34,9 @@ const therapistSchema = new mongoose.Schema(
     available: {
       type: Boolean
     },
+    bank_account: {
+      type: String
+    },
   },
   { timestamps: true }
 );

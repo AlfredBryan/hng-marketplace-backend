@@ -11,6 +11,7 @@ const { sendJSONResponse } = require('../../../helpers');
 const Therapist = mongoose.model('Therapist');
 const User = mongoose.model('User');
 
+<<<<<<< HEAD
 module.exports.updateTherapist = async (req, res) => {
   const {
     phone,
@@ -68,6 +69,8 @@ module.exports.updateTherapist = async (req, res) => {
   
 };
 
+=======
+>>>>>>> bf46d396b247bd8772aacb58893a0ba944fda904
 module.exports.allTherapists = async (req, res) => {
   const except = {
     _v: false,
@@ -125,7 +128,6 @@ module.exports.search = async (req, res) => {
       searchKey[i] = req.body[i];
     }
   }
-<<<<<<< HEAD
 
   const findTherapist = Therapist.findOne({ searchKey })
     .populate({
@@ -133,7 +135,6 @@ module.exports.search = async (req, res) => {
       select: "first_name last_name"
     })
     .exec();
-=======
   //TODO: find solution to this
   const findTherapist = await Therapist.aggregate([
     { $match: searchKey  },
@@ -148,7 +149,6 @@ module.exports.search = async (req, res) => {
     },
   ]).exec();
   console.log(findTherapist);
->>>>>>> 20317c88b564e7bd502107c5821f168489dca09e
 
   return sendJSONResponse(
     res,
