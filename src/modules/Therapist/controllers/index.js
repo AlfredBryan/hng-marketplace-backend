@@ -109,8 +109,7 @@ module.exports.viewTherapist = async (req, res) => {
     'View Therapist',
   );
 };
-// TODO: test if .find.populate works
-// else use aggregate
+// TODO: find working solution for searching
 module.exports.search = async (req, res) => {
   const searchKey = {};
 
@@ -120,7 +119,7 @@ module.exports.search = async (req, res) => {
       searchKey[i] = req.body[i];
     }
   }
-
+  //TODO: find solution to this
   const findTherapist = await Therapist.aggregate([
     { $match: searchKey  },
     { '$unwind': '$user' },
