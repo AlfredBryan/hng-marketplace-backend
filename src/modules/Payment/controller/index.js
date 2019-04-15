@@ -183,3 +183,35 @@ module.exports.makePayment = async (req, res) => {
     sendJSONResponse(res, 400, { newRequest }, req.method, 'No such request');
 };
 
+/**
+   * End Session
+   * @param {object} req - Request object
+   * @param {object} res - Response object
+   * @return {json} res.json
+   */
+  module.exports.endSession = async (req, res) => {
+    const { userId} = req.body;
+    const { therapistId } = req.params;
+
+    if (!userId.match(/^[0-9a-fA-F]{24}$/) && !therapistId.match(/^[0-9a-fA-F]{24}$/)) {
+        return sendJSONResponse(res, 400, null, req.method, 'Invalid User ID');
+      }
+
+    const client = await User.findById(userId);
+    const therapist = await User.findById(therapist);
+
+    if(!client && !therapist){
+        return sendJSONResponse(res, 404, null, req.method, 'User does not exist');
+    }
+
+    const request = await Request.findOne({ client:userId, therapist: therapistId, status: 'started'});
+    
+    if(request){
+        request.status = 'finished';
+
+        await request.save();
+        return sendJSONResponse(res, 200, { request }, req.method, 'Therapy has ended');
+    }
+
+    sendJSONResponse(res, 400, { newRequest }, req.method, 'No such request');
+};

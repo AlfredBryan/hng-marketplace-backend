@@ -9,4 +9,5 @@ router.post('/user/:userId/make-request', checkTokenExists, verifyToken, catchEr
 router.put('/user/:userId/accept-request', checkTokenExists, verifyToken, catchErrors(ctrlRequest.acceptRequest));
 router.put('/user/:userId/reject-request', checkTokenExists, verifyToken, catchErrors(ctrlRequest.rejectRequest));
 router.put('/user/:userId/start-session', checkTokenExists, verifyToken, catchErrors(ctrlRequest.startRequest));
+router.put('/user/:userId/end-session', checkTokenExists, verifyToken, catchErrors(ctrlRequest.endSession));
 module.exports = router;
