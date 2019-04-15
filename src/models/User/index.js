@@ -13,6 +13,9 @@ const userSchema = new Schema({
   is_admin: {
     type: Boolean,
   },
+  is_therapist: {
+    type: Boolean
+  },
   image: {
     type: String,
   },
@@ -32,8 +35,10 @@ const userSchema = new Schema({
   age: {
     type: String
   }
+},
+  { timestamps: true }
+);
 
-}, { timestamps: true });
 
 userSchema.methods.generateJWT = function generate(_id, name, email, admin) {
   return sign(
@@ -45,9 +50,9 @@ userSchema.methods.generateJWT = function generate(_id, name, email, admin) {
     },
     jwtsecret,
     {
-      expiresIn: '24h',
-    },
+      expiresIn: "24h"
+    }
   );
 };
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model("User", userSchema);
