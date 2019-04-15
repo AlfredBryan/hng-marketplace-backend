@@ -4,8 +4,8 @@ const requestRoutes = require('../modules/Request/routes');
 const therapistRoutes = require('../modules/Therapist/routes');
 const router = express.Router();
 
-router.use('/user', userRoutes);
+router.use(userRoutes);
 router.use(requestRoutes);
-router.use('/therapist', therapistRoutes);
+router.use( therapistRoutes);
 
 module.exports = router;

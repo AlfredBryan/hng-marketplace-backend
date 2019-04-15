@@ -78,9 +78,13 @@ module.exports.viewProfile = async (req, res) => {
   }
 
   const user = await User.findById(userId);
+  const therapist = await Therapy.findOne({ user: userId });
 
-  if (user) {
-    return sendJSONResponse(res, 200, user, req.method, "View profile");
+  if (user && therapist) {
+    return sendJSONResponse(res, 200, {user,therapist}, req.method, "View therapist profile");
+  }
+  else if(user){
+    return sendJSONResponse(res, 200, {user}, req.method, "View profile");
   }
   
   return sendJSONResponse(res, 400, null, req.method, "User does not exist");
@@ -125,5 +129,80 @@ module.exports.viewProfile = async (req, res) => {
       req.method,
       'User Deleted Successfully',
     );
+  };
+
+  module.exports.updateUser = async (req, res) => {
+    const {
+      first_name,
+      last_name,
+      phone,
+      country,
+      address,
+      years_of_experience,
+      last_working_experience,
+      password,
+      time_available,
+      fee_per_hour,
+      bank_account
+    } = req.body;
+    const { userId } = req.params;
+  
+    if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
+      return sendJSONResponse(res, 400, null, req.method, "Invalid Therapist ID");
+    }
+  
+    const therapist = await Therapy.findOne({ user: userId });
+    const user = await User.findById(userId)
+  
+    if (therapist) {
+      if (phone) {
+        therapist.phone = phone;
+      }
+      if (country) {
+        therapist.country = country;
+      }
+      if (address) {
+        therapist.address = address;
+      }
+      if (years_of_experience) {
+        therapist.years_of_experience = years_of_experience;
+      }
+      if (last_working_experience) {
+        therapist.last_working_experience = last_working_experience;
+      }
+      if (password) {
+        user.password = bcrypt.hashSync(password, 10);
+      }
+      if (bank_account) {
+        therapist.bank_account = bank_account;
+      }
+      if (first_name) {
+        user.first_name = first_name;
+      }
+      if(last_name){
+        user.last_name = last_name;
+      }
+      if(time_available){
+        therapist.time_available = time_available;
+      }
+      if(fee_per_hour){
+        therapist.fee_per_hour = fee_per_hour;
+      }
+  
+      await therapist.save();
+      await user.save()
+      return sendJSONResponse(
+        res,
+        200,
+        {
+          therapist,
+          user
+        },
+        req.method,
+        "Therapist Updated Succesfully!"
+      );
+    } else {
+      return sendJSONResponse(res, 409, null, req.method, "Therapist not Found!");
+    }
   };
 

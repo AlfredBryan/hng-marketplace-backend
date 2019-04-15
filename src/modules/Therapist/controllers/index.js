@@ -1,9 +1,7 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 const { sendJSONResponse } = require('../../../helpers');
 
 const Therapist = mongoose.model('Therapist');
-const User = mongoose.model('User');
 
 module.exports.allTherapists = async (req, res) => {
   const except = {
@@ -21,37 +19,6 @@ module.exports.allTherapists = async (req, res) => {
   }
 };
 
-module.exports.viewTherapist = async (req, res) => {
-  const { id } = req.params;
-
-  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-    return sendJSONResponse(res, 400, null, req.method, 'Invalid Therapist ID');
-  }
-
-  const therapist = await Therapist.findOne({ _id: id });
-
-  if (therapist === null) {
-    return sendJSONResponse(res, 404, null, req.method, 'Therapist Not Found');
-  }
-
-  sendJSONResponse(
-    res,
-    200,
-    {
-      id: therapist._id,
-      phone: therapist.phone,
-      country: therapist.country,
-      address: therapist.address,
-      years_of_experience: therapist.years_of_experience,
-      last_working_experience: therapist.last_working_experience,
-      time_available: therapist.time_available,
-      fee_per_hour: therapist.fee_per_hour,
-      status: therapist.status,
-    },
-    req.method,
-    'View Therapist',
-  );
-};
 // TODO: find working solution for searching
 module.exports.search = async (req, res) => {
   const searchKey = {};
@@ -78,30 +45,6 @@ module.exports.search = async (req, res) => {
   console.log(findTherapist);
 
   return sendJSONResponse(res, 200, { therapist: findTherapist }, req.method, 'Therapist fetched');
-};
-
-module.exports.create = async (req, res) => {
-  const { userId } = req.params;
-  const findUser = await User.findOne({ _id: userId });
-
-  if (!findUser) {
-    return sendJSONResponse(res, 200, {}, req.method, 'User not found');
-  }
-
-  if (findUser.designation.toLowerCase() !== 'therapist') {
-    return sendJSONResponse(res, 200, {}, req.method, 'User not a Therapist');
-  }
-
-  const findTherapist = await Therapist.findOne({ user: userId });
-  if (findTherapist) {
-    return sendJSONResponse(res, 200, {}, req.method, 'Account already approved');
-  }
-
-  const therapist = new Therapist();
-  therapist.user = findUser._id;
-  await therapist.save();
-
-  return sendJSONResponse(res, 201, {}, req.method, 'Therapist account approved');
 };
 
 module.exports.marketplace = async (req, res) => {

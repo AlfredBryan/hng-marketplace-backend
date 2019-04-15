@@ -6,11 +6,8 @@ const {
 
 const router = express.Router();
 // TODO: remove all commented out authentication middleware
-router.put('/edit/:Id', checkTokenExists, verifyToken, catchErrors(ctrlTherapist.updateTherapist));
-router.get('/profile/:id', catchErrors(ctrlTherapist.viewTherapist));
-router.get('/all', /*checkTokenExists, verifyToken,*/ catchErrors(ctrlTherapist.allTherapists));
+router.get('/all-therapists', /*checkTokenExists, verifyToken,*/ catchErrors(ctrlTherapist.allTherapists));
 router.post('/search', /*checkTokenExists, verifyToken,*/ catchErrors(ctrlTherapist.search));
-router.post('/verify/:userId', /*checkTokenExists, verifyToken,*/ catchErrors(ctrlTherapist.create));
 router.get('/marketplace', catchErrors(ctrlTherapist.marketplace));
 router.put('/user/:userId/change-status', checkTokenExists, verifyToken, catchErrors(ctrlTherapist.changeStatus));
 module.exports = router;
