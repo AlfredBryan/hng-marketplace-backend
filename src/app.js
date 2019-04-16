@@ -3,6 +3,7 @@ require('dotenv').config({ path: '.env' });
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const chalk = require('./config/chalk');
@@ -17,8 +18,10 @@ require('./models');
 if (config.env !== 'test') {
   app.use(morgan('dev'));
 }
-app.use(bodyParser.urlencoded({ extended: false }));
+
 app.use(bodyParser.json({ limit: '52428800' }));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
 app.use(cors());
 app.options('*', cors());
 

@@ -7,7 +7,7 @@ const Therapy = mongoose.model('Therapist');
 const Request = mongoose.model('Request');
 
 module.exports.register = async (req, res) => {
-  const { first_name, last_name, email, designation, password } = req.body;
+  let { first_name, last_name, email, designation, password } = req.body;
   const findUser = await User.findOne({ email });
 
   if (findUser) {
@@ -20,11 +20,26 @@ module.exports.register = async (req, res) => {
     );
   }
 
+  first_name = first_name.toLowerCase();
+  last_name = last_name.toLowerCase();
+  email = email.toLowerCase();
+
+  if(designation){
+    designation = designation.toLowerCase();
+  }
+  
   const user = new User();
   user.first_name = first_name;
   user.last_name = last_name;
   user.email = email;
   user.password = bcrypt.hashSync(password, 10);
+  user.image = 'https://res.cloudinary.com/ephaig/image/upload/v1555015808/download.png';
+
+
+
+  if(designation && designation != "normal" && designation != "admin" && designation != "therapist"){
+    return sendJSONResponse(res, 400, null, req.method, 'Designation can only be normal, therapist or admin!');
+  }
   
   if (designation) {
     user.designation = designation;
@@ -55,15 +70,12 @@ module.exports.login = async (req, res) => {
   }
 
   const token = user.generateJWT(findUser._id, findUser.name, findUser.email, findUser.designation);
+  findUser.password = undefined;
   return sendJSONResponse(
     res, 200,
     {
       token,
-      id: findUser._id,
-      name: findUser.name,
-      email: findUser.email,
-      admin: findUser.is_admin,
-      premium: findUser.is_premium,
+      findUser
     },
     req.method,
     'Login Successful!',
@@ -81,9 +93,11 @@ module.exports.viewProfile = async (req, res) => {
   const therapist = await Therapy.findOne({ user: userId });
 
   if (user && therapist) {
+    user.password = undefined;
     return sendJSONResponse(res, 200, {user,therapist}, req.method, "View therapist profile");
   }
   else if(user){
+    user.password = undefined;
     return sendJSONResponse(res, 200, {user}, req.method, "View profile");
   }
   
@@ -143,7 +157,8 @@ module.exports.viewProfile = async (req, res) => {
       password,
       time_available,
       fee_per_hour,
-      bank_account
+      bank_account,
+      image
     } = req.body;
     const { userId } = req.params;
   
@@ -152,7 +167,11 @@ module.exports.viewProfile = async (req, res) => {
     }
   
     const therapist = await Therapy.findOne({ user: userId });
-    const user = await User.findById(userId)
+    const user = await User.findById(userId);
+
+    if(!user){
+      return sendJSONResponse(res, 409, null, req.method, "User not Found!");
+    }
   
     if (therapist) {
       if (phone) {
@@ -170,17 +189,8 @@ module.exports.viewProfile = async (req, res) => {
       if (last_working_experience) {
         therapist.last_working_experience = last_working_experience;
       }
-      if (password) {
-        user.password = bcrypt.hashSync(password, 10);
-      }
       if (bank_account) {
         therapist.bank_account = bank_account;
-      }
-      if (first_name) {
-        user.first_name = first_name;
-      }
-      if(last_name){
-        user.last_name = last_name;
       }
       if(time_available){
         therapist.time_available = time_available;
@@ -188,21 +198,44 @@ module.exports.viewProfile = async (req, res) => {
       if(fee_per_hour){
         therapist.fee_per_hour = fee_per_hour;
       }
-  
+
       await therapist.save();
-      await user.save()
-      return sendJSONResponse(
-        res,
-        200,
-        {
-          therapist,
-          user
-        },
-        req.method,
-        "Therapist Updated Succesfully!"
-      );
-    } else {
-      return sendJSONResponse(res, 409, null, req.method, "Therapist not Found!");
     }
+
+    if (first_name) {
+      user.first_name = first_name;
+    }
+    if(last_name){
+      user.last_name = last_name;
+    }
+    if (password) {
+      user.password = bcrypt.hashSync(password, 10);
+    }
+    if (req.file) {
+
+      try {
+        const image = {};
+        image.url = req.file.url;
+        image.id = req.file.public_id;
+
+        user.imageId = image.id;
+        user.image = image.url;
+      } catch (error) {
+        return sendJSONResponse(res, 408, null, req.method, 'Bad Network');
+      }
+    }
+  
+    await user.save()
+    user.password = undefined;
+    return sendJSONResponse(
+      res,
+      200,
+      {
+        therapist,
+        user
+      },
+      req.method,
+      "Therapist Updated Succesfully!"
+    );
   };
 

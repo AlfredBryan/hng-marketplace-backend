@@ -10,6 +10,7 @@ const userSchema = new Schema(
     designation: {
       type: String,
       default: 'normal', //therapist, admin, normal
+      enum: ['normal', 'admin', 'therapist']
     },
     image: {
       type: String,
