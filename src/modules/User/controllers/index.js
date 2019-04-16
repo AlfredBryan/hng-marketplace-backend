@@ -119,12 +119,13 @@ module.exports.viewProfile = async (req, res) => {
   
     const user = await User.findById(userId);
   
-    if (user === null) {
+    if (!user) {
       return sendJSONResponse(res, 404, null, req.method, 'User Not Found');
     }
   
     // delete user
     const findRequest = await Request.find({therapist: userId});
+    console.log(findRequest);
     for (let i = 0; i < findRequest.length; i++) {
       const status = findRequest[i].status;
 
@@ -157,8 +158,7 @@ module.exports.viewProfile = async (req, res) => {
       password,
       time_available,
       fee_per_hour,
-      bank_account,
-      image
+      bank_account
     } = req.body;
     const { userId } = req.params;
   

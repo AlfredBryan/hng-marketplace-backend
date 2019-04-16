@@ -11,17 +11,17 @@ const Request = mongoose.model('Request');
    * @param {object} req - Request object
    * @param {object} res - Response object
    * @return {json} res.json
-   */
+   */ 
 module.exports.makePayment = async (req, res) => {
-    const { userId} = req.params;
-    const { therapist, number_of_hours, total_fee_charged} = req.body;
+    const { userId, therapistId } = req.params;
+    const { number_of_hours, total_fee_charged} = req.body;
 
-    if (!userId.match(/^[0-9a-fA-F]{24}$/)) {
+    if (!userId.match(/^[0-9a-fA-F]{24}$/) && !therapistId.match(/^[0-9a-fA-F]{24}$/)) {
         return sendJSONResponse(res, 400, null, req.method, 'Invalid User ID');
       }
 
     const client = await User.findById(userId);
-    const therapy = await User.findById(therapist);
+    const therapist = await User.findOne({ _id:therapistId, designation: "therapist" });
 
     if(!number_of_hours && !total_fee_charged){
         return sendJSONResponse(res, 400, null, req.method, 'Please complete all fields');
@@ -31,13 +31,13 @@ module.exports.makePayment = async (req, res) => {
         return sendJSONResponse(res, 404, null, req.method, 'Client does not exist');
     }
 
-    if(!therapy){
+    if(!therapist){
         return sendJSONResponse(res, 404, null, req.method, 'Therapist cannot be found');
     }
 
     const newPayment = new Payment();
     newPayment.client = userId;
-    newPayment.therapist = therapist;
+    newPayment.therapist = therapistId;
 
     await newPayment.save();
     sendJSONResponse(res, 201, { newPayment }, req.method, 'Created New Payment!');

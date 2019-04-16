@@ -19,7 +19,7 @@ const storage = cloudinarystorage({
     allowedFormats: ["jpg", "png"],
 });
 
-const parser = multer({storage: storage})
+const parser = multer({storage: storage});
 
 const router = express.Router();
 
@@ -27,7 +27,7 @@ router.post('/auth/signup', expressValidator(validateUser.register), catchErrors
 router.post('/auth/login', expressValidator(validateUser.login), catchErrors(ctrlUser.login));
 router.get('/user/:userId', catchErrors(ctrlUser.viewProfile));
 //test route later
-router.delete('/user/:userId/leave-marketplace');
+router.delete('/user/:userId/leave-marketplace', checkTokenExists, verifyToken, catchErrors(ctrlUser.leaveMarket));
 router.put('/user/:userId/update-me', checkTokenExists, verifyToken, parser.single("image"), catchErrors(ctrlUser.updateUser));
 
 module.exports = router;
